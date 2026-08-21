@@ -61,7 +61,10 @@ Assistant vocal personnel type Iron Man : "Je parle → Claude comprend → l'ag
 - **Menu circulaire rotatif** (sections orbitant autour du visage) — non implémenté (le sidebar reste vertical ; le noyau a déjà des anneaux).
 - **MySQL** : nom de base + hôte accessible manquants.
 
-## Limites connues
+## Itération 7 (2026-08-21) — Menu circulaire
+- **Menu en anneau rotatif** (`RadialMenu.jsx`) : les 10 sections orbitent autour du visage central, rotation auto + glisser pour tourner, nœud actif surligné, clic = navigation. Sidebar supprimée, bouton power flottant en bas à gauche.
+
+## Limites connues (avant crédits)
 - Réponses Claude bloquées : le compte Anthropic du user a un **solde de crédits insuffisant** (clé valide). Ajouter des crédits sur console.anthropic.com.
 - WhatsApp : données de démonstration (MOCKED) — pas d'API officielle de lecture des messages perso.
 - Contrôle réel du PC (ouvrir dossiers, lancer VS Code/Ubuntu, nmap, USB) : pleinement effectif quand le backend tourne en LOCAL sur Windows ; dans l'aperçu cloud, s'exécute sur le conteneur Linux.

@@ -191,6 +191,31 @@ body {
 .hand-cursor.pinch { width: 20px; height: 20px; margin: -10px 0 0 -10px; background: rgba(255,59,82,.35); border-color: var(--red); box-shadow: 0 0 22px rgba(255,59,82,.8); }
 .hand-cursor.scroll { border-color: var(--amber); box-shadow: 0 0 18px rgba(255,182,72,.7); }
 
+/* radial rotating menu */
+.radial-node {
+  position: absolute; transform: translate(-50%, -50%);
+  pointer-events: auto; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  width: 72px; padding: 8px 4px; border-radius: 10px;
+  background: rgba(9,16,28,.7); border: 1px solid var(--panel-border);
+  color: var(--text-dim); font-family: 'Orbitron', sans-serif; font-size: 8px; letter-spacing: 1px;
+  backdrop-filter: blur(6px); transition: transform .18s, color .18s, box-shadow .18s, border-color .18s;
+}
+.radial-node:hover { color: var(--cyan-bright); border-color: rgba(35,168,255,.5); transform: translate(-50%,-50%) scale(1.12); }
+.radial-node.active {
+  color: var(--cyan-bright); border-color: var(--cyan);
+  box-shadow: 0 0 18px rgba(35,168,255,.35), inset 0 0 12px rgba(35,168,255,.12);
+  transform: translate(-50%,-50%) scale(1.15);
+}
+.power-fab {
+  position: fixed; left: 16px; bottom: 16px; z-index: 30;
+  width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--red); color: var(--red-soft); background: rgba(255,59,82,.08);
+  transition: box-shadow .2s;
+}
+.power-fab:hover { box-shadow: 0 0 18px rgba(255,59,82,.5); }
+
 input, textarea, select { font-family: 'Rajdhani', sans-serif; }
 .field {
   background: rgba(6,12,22,0.8); border: 1px solid var(--panel-border);

@@ -6,6 +6,7 @@ import Avatar3D from "@/components/Avatar3D";
 import FaceCore from "@/components/FaceCore";
 import ParticleFace from "@/components/ParticleFace";
 import HandControl from "@/components/HandControl";
+import RadialMenu from "@/components/RadialMenu";
 import { DashboardLeft, DashboardRight } from "@/sections/Dashboard";
 import Settings from "@/sections/Settings";
 import DatabaseView from "@/sections/Database";
@@ -134,12 +135,13 @@ function ConversationFeed({ messages }) {
   );
 }
 
-function CenterStage({ assistant }) {
+function CenterStage({ assistant, tab, setTab }) {
   return (
     <div className="flex flex-col items-center" style={{ height: "100%", minHeight: 0 }}>
-      <div style={{ position: "relative", width: "100%", flex: "0 0 46%", minHeight: 300 }}>
+      <div style={{ position: "relative", width: "100%", flex: "0 0 52%", minHeight: 340 }}>
         <div className={`wake-halo ${assistant.armed ? "armed" : ""} ${assistant.wakeFlash ? "flash" : ""}`} />
         <ParticleFace state={assistant.state} />
+        {setTab && <RadialMenu items={NAV} active={tab} onSelect={setTab} />}
         <div className="absolute" style={{ bottom: 6, left: 0, right: 0, textAlign: "center" }}>
           <span className="chip font-display" style={{ background: "rgba(6,12,22,0.7)", color: STATE_COLOR[assistant.state], border: `1px solid ${STATE_COLOR[assistant.state]}`, letterSpacing: 2 }}>
             {STATE_LABEL[assistant.state]}
@@ -169,24 +171,10 @@ export default function App() {
     <div className="hud-grid" style={{ height: "100vh", display: "flex", position: "relative" }}>
       <div className="scanline" />
       <HandControl enabled={handMode} onError={() => setHandMode(false)} />
-      {/* Sidebar */}
-      <div className="flex flex-col justify-between py-4 px-2" style={{ width: 96, borderRight: "1px solid var(--panel-border)", zIndex: 2 }}>
-        <div className="flex flex-col gap-1">
-          {NAV.map((n) => {
-            const Icon = n.icon;
-            return (
-              <div key={n.id} className={`nav-item ${tab === n.id ? "active" : ""}`} onClick={() => setTab(n.id)} data-testid={`nav-${n.id}`}>
-                <Icon size={20} />
-                <span>{n.label}</span>
-              </div>
-            );
-          })}
-        </div>
-        <div className="nav-item danger" onClick={assistant.stopAll} data-testid="nav-disconnect" style={{ color: "var(--red-soft)" }}>
-          <Power size={20} />
-          <span>DÉCONNEXION</span>
-        </div>
-      </div>
+      {/* Orbital navigation replaces the sidebar (see RadialMenu around the face) */}
+      <button className="power-fab" onClick={assistant.stopAll} data-testid="nav-disconnect" title="Déconnexion / stop">
+        <Power size={20} />
+      </button>
 
       {/* Main */}
       <div className="flex flex-col flex-1" style={{ zIndex: 2, minWidth: 0 }}>
@@ -195,11 +183,11 @@ export default function App() {
           {tab === "dashboard" ? (
             <div className="grid h-full gap-4" style={{ gridTemplateColumns: "340px 1fr 360px", minHeight: 0 }}>
               <div style={{ overflowY: "auto", paddingRight: 4 }}><DashboardLeft assistant={assistant} /></div>
-              <CenterStage assistant={assistant} />
+              <CenterStage assistant={assistant} tab={tab} setTab={setTab} />
               <div style={{ overflowY: "auto", paddingRight: 4 }}><DashboardRight assistant={assistant} /></div>
             </div>
           ) : (
-            <div className="grid h-full gap-4" style={{ gridTemplateColumns: "1fr 380px", minHeight: 0 }}>
+            <div className="grid h-full gap-4" style={{ gridTemplateColumns: "1fr 420px", minHeight: 0 }}>
               <div style={{ overflowY: "auto", paddingRight: 6 }}>
                 {tab === "applications" && <ApplicationsView assistant={assistant} />}
                 {tab === "files" && <FilesView assistant={assistant} />}
@@ -211,7 +199,7 @@ export default function App() {
                 {tab === "system" && <SystemView />}
                 {tab === "settings" && <Settings onSaved={setConfig} />}
               </div>
-              <div style={{ minHeight: 0 }}><CenterStage assistant={assistant} /></div>
+              <div style={{ minHeight: 0 }}><CenterStage assistant={assistant} tab={tab} setTab={setTab} /></div>
             </div>
           )}
         </div>
