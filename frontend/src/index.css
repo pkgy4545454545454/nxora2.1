@@ -179,6 +179,18 @@ body {
   100% { opacity: 0; transform: translate(-50%,-50%) scale(1.25); }
 }
 
+/* hand-control cursor */
+.hand-cursor {
+  position: fixed; width: 34px; height: 34px; margin: -17px 0 0 -17px;
+  border: 2px solid var(--cyan-bright); border-radius: 50%; pointer-events: none;
+  z-index: 9999; box-shadow: 0 0 16px rgba(79,214,255,.7);
+  transition: width .12s, height .12s, background .12s, border-color .12s;
+  display: flex; align-items: center; justify-content: center;
+}
+.hand-cursor::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--cyan-bright); box-shadow: 0 0 8px var(--cyan-bright); }
+.hand-cursor.pinch { width: 20px; height: 20px; margin: -10px 0 0 -10px; background: rgba(255,59,82,.35); border-color: var(--red); box-shadow: 0 0 22px rgba(255,59,82,.8); }
+.hand-cursor.scroll { border-color: var(--amber); box-shadow: 0 0 18px rgba(255,182,72,.7); }
+
 input, textarea, select { font-family: 'Rajdhani', sans-serif; }
 .field {
   background: rgba(6,12,22,0.8); border: 1px solid var(--panel-border);

@@ -52,6 +52,15 @@ Assistant vocal personnel type Iron Man : "Je parle → Claude comprend → l'ag
 - Navigation par **gestes de la main** (MediaPipe Hands) : curseur, pincer=clic, scroll, drag & drop des panneaux, via la caméra.
 - Menu circulaire rotatif (disposition radiale complète comme l'image de référence).
 
+## Itération 6 (2026-08-21) — Lot B (partiel)
+- **Atlas corrigé** (mot de passe `Mini.1996`) : `rebecca.users` s'affiche en direct (58 docs, 20 colonnes) dans la section BDD.
+- **Visage en particules** (`ParticleFace.jsx`) : échantillonne `/iaia.webp` (téléchargé dans `public/`) → nuage de points à la FORME du visage, relief par luminosité, yeux lumineux, bouche animée (mouth.level), anneaux orbitaux, réactif aux états.
+- **Navigation gestuelle** (`HandControl.jsx`, MediaPipe Hands via CDN) : curseur = index, **pincer = clic**, **deux doigts = scroll** du conteneur survolé, **pincer‑maintenir sur un panneau = déplacer**. Bouton « MAINS » dans la barre du haut + aperçu caméra. À tester avec une vraie webcam dans le navigateur (impossible dans le harness cloud).
+
+### Reste à faire
+- **Menu circulaire rotatif** (sections orbitant autour du visage) — non implémenté (le sidebar reste vertical ; le noyau a déjà des anneaux).
+- **MySQL** : nom de base + hôte accessible manquants.
+
 ## Limites connues
 - Réponses Claude bloquées : le compte Anthropic du user a un **solde de crédits insuffisant** (clé valide). Ajouter des crédits sur console.anthropic.com.
 - WhatsApp : données de démonstration (MOCKED) — pas d'API officielle de lecture des messages perso.

@@ -4,6 +4,8 @@ import { api } from "@/lib/api";
 import { useAssistant } from "@/hooks/useAssistant";
 import Avatar3D from "@/components/Avatar3D";
 import FaceCore from "@/components/FaceCore";
+import ParticleFace from "@/components/ParticleFace";
+import HandControl from "@/components/HandControl";
 import { DashboardLeft, DashboardRight } from "@/sections/Dashboard";
 import Settings from "@/sections/Settings";
 import DatabaseView from "@/sections/Database";
@@ -11,7 +13,7 @@ import VisionView from "@/sections/Vision";
 import { ApplicationsView, FilesView, NetworkView, SecurityView, SystemView, ProjectsView } from "@/sections/Views";
 import {
   LayoutDashboard, AppWindow, Folder, Globe, Shield, Cpu, Settings as Cog,
-  Power, Mic, Send, Radio, Square, Activity, Layers, Database, Eye,
+  Power, Mic, Send, Radio, Square, Activity, Layers, Database, Eye, Hand,
 } from "lucide-react";
 
 const NAV = [
@@ -42,7 +44,7 @@ function useClock() {
   return now;
 }
 
-function TopBar({ assistant }) {
+function TopBar({ assistant, handMode, toggleHand }) {
   const now = useClock();
   const time = now.toLocaleTimeString("fr-FR", { hour12: false });
   const date = now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -59,7 +61,10 @@ function TopBar({ assistant }) {
         <div className="font-display" style={{ fontSize: 10, color: "var(--text-dim)", letterSpacing: 2, textTransform: "uppercase" }}>{date}</div>
       </div>
       <div className="flex items-center gap-3">
-        <Activity size={18} style={{ color: "var(--red-soft)" }} />
+        <button className={`nav-item ${handMode ? "active" : ""}`} style={{ flexDirection: "row", gap: 6, padding: "8px 12px" }}
+          onClick={toggleHand} data-testid="hand-toggle" title="Contrôle par gestes de la main">
+          <Hand size={16} /> <span style={{ fontSize: 9 }}>MAINS</span>
+        </button>
         <span className="chip" style={{ background: "rgba(57,230,160,.12)", color: "var(--green)" }}>SYSTEM ONLINE</span>
         <span className="dot on" />
       </div>
@@ -134,7 +139,7 @@ function CenterStage({ assistant }) {
     <div className="flex flex-col items-center" style={{ height: "100%", minHeight: 0 }}>
       <div style={{ position: "relative", width: "100%", flex: "0 0 46%", minHeight: 300 }}>
         <div className={`wake-halo ${assistant.armed ? "armed" : ""} ${assistant.wakeFlash ? "flash" : ""}`} />
-        <FaceCore state={assistant.state} />
+        <ParticleFace state={assistant.state} />
         <div className="absolute" style={{ bottom: 6, left: 0, right: 0, textAlign: "center" }}>
           <span className="chip font-display" style={{ background: "rgba(6,12,22,0.7)", color: STATE_COLOR[assistant.state], border: `1px solid ${STATE_COLOR[assistant.state]}`, letterSpacing: 2 }}>
             {STATE_LABEL[assistant.state]}
@@ -151,6 +156,7 @@ function CenterStage({ assistant }) {
 export default function App() {
   const [tab, setTab] = useState("dashboard");
   const [config, setConfig] = useState({ voice: { lang: "fr-FR" }, wake_word: "jarvis" });
+  const [handMode, setHandMode] = useState(false);
   const assistant = useAssistant(config);
 
   useEffect(() => { api.config().then(setConfig).catch(() => {}); }, []);
@@ -162,6 +168,7 @@ export default function App() {
   return (
     <div className="hud-grid" style={{ height: "100vh", display: "flex", position: "relative" }}>
       <div className="scanline" />
+      <HandControl enabled={handMode} onError={() => setHandMode(false)} />
       {/* Sidebar */}
       <div className="flex flex-col justify-between py-4 px-2" style={{ width: 96, borderRight: "1px solid var(--panel-border)", zIndex: 2 }}>
         <div className="flex flex-col gap-1">
@@ -183,7 +190,7 @@ export default function App() {
 
       {/* Main */}
       <div className="flex flex-col flex-1" style={{ zIndex: 2, minWidth: 0 }}>
-        <TopBar assistant={assistant} />
+        <TopBar assistant={assistant} handMode={handMode} toggleHand={() => setHandMode((v) => !v)} />
         <div className="flex-1" style={{ minHeight: 0, overflow: "hidden", padding: "16px 8px 0" }}>
           {tab === "dashboard" ? (
             <div className="grid h-full gap-4" style={{ gridTemplateColumns: "340px 1fr 360px", minHeight: 0 }}>
