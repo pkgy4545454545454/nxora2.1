@@ -1,9 +1,9 @@
 """Tool registry: aggregates all tool modules."""
 from jarvis.tools import (filesystem, applications, browser, terminal,
-                          development, cybersecurity, system_info, gmail_tools)
+                          development, cybersecurity, system_info, gmail_tools, vision_tools)
 
 _MODULES = [filesystem, applications, browser, terminal, development,
-            cybersecurity, system_info, gmail_tools]
+            cybersecurity, system_info, gmail_tools, vision_tools]
 
 # name -> meta dict {name, category, func, description, input_schema}
 ALL_TOOLS: dict[str, dict] = {}
@@ -27,3 +27,14 @@ def anthropic_schemas(enabled_categories: set[str]) -> list[dict]:
 
 def get_tool(name: str) -> dict | None:
     return ALL_TOOLS.get(name)
+
+
+def openai_schemas(enabled_categories: set[str]) -> list[dict]:
+    """OpenAI/Ollama-style function tool schemas."""
+    schemas = []
+    for t in ALL_TOOLS.values():
+        if t["category"] in enabled_categories or t["category"] == "read":
+            schemas.append({"type": "function", "function": {
+                "name": t["name"], "description": t["description"],
+                "parameters": t["input_schema"]}})
+    return schemas

@@ -15,6 +15,7 @@ from jarvis.tools.system_info import get_system_stats, list_usb_devices
 from jarvis.tools.cybersecurity import list_security_tools
 from jarvis.tools.applications import detect_applications
 from jarvis import gmail_service
+from jarvis import dbbrowser, ollama_service
 
 router = APIRouter(prefix="/api")
 FRONTEND_URL = os.environ.get("JARVIS_PUBLIC_URL", "/")
@@ -33,14 +34,23 @@ class NoteIn(BaseModel):
 
 
 class ConfigIn(BaseModel):
+    ai_provider: str | None = None
     anthropic_api_key: str | None = None
     anthropic_model: str | None = None
+    ollama_url: str | None = None
+    ollama_model: str | None = None
+    ollama_vision_model: str | None = None
     wake_word: str | None = None
     voice: dict | None = None
     permissions: dict | None = None
     allowed_folders: list | None = None
     allowed_apps: list | None = None
     cyber_authorized_targets: list | None = None
+
+
+class VisionIn(BaseModel):
+    prompt: str = "Décris précisément ce que tu vois."
+    image: str
 
 
 # ---------- chat ----------
@@ -273,3 +283,63 @@ async def whatsapp_recent():
         {"from": "Équipe Projet", "text": "Le build est passé ✅", "time": "08:03", "unread": True},
         {"from": "Léa", "text": "Merci pour hier soir !", "time": "Hier", "unread": False},
     ]}
+
+
+# ---------- vision (Ollama) ----------
+@router.get("/vision/status")
+async def vision_status():
+    cfg = await get_config()
+    url = cfg.get("ollama_url") or "http://localhost:11434"
+    online = await __import__("asyncio").to_thread(ollama_service.health, url)
+    return {"online": online, "url": url, "model": cfg.get("ollama_vision_model")}
+
+
+@router.post("/vision")
+async def vision_analyze(body: VisionIn):
+    import asyncio as _a
+    cfg = await get_config()
+    url = cfg.get("ollama_url") or "http://localhost:11434"
+    model = cfg.get("ollama_vision_model") or "qwen2.5vl:7b"
+    try:
+        text = await _a.to_thread(ollama_service.vision, url, model, body.prompt, body.image)
+    except Exception as e:
+        return {"ok": False, "error": f"Vision indisponible ({e}). Lance Ollama en local avec le modèle {model}."}
+    entry = {"id": str(uuid.uuid4()), "prompt": body.prompt, "response": text,
+             "model": model, "created": now_iso()}
+    await db.vision_history.insert_one(dict(entry))
+    entry.pop("_id", None)
+    return {"ok": True, "response": text, "entry": entry}
+
+
+@router.get("/vision/history")
+async def vision_history(limit: int = 30):
+    docs = await db.vision_history.find({}, {"_id": 0}).sort("created", -1).to_list(limit)
+    return {"history": docs}
+
+
+# ---------- external databases ----------
+@router.get("/db/mongo/databases")
+async def db_mongo_dbs():
+    return await dbbrowser.mongo_databases()
+
+
+@router.get("/db/mongo/{database}/collections")
+async def db_mongo_cols(database: str):
+    return await dbbrowser.mongo_collections(database)
+
+
+@router.get("/db/mongo/{database}/{collection}")
+async def db_mongo_docs(database: str, collection: str, limit: int = 100, skip: int = 0):
+    return await dbbrowser.mongo_docs(database, collection, limit, skip)
+
+
+@router.get("/db/mysql/tables")
+async def db_mysql_tables():
+    import asyncio as _a
+    return await _a.to_thread(dbbrowser.mysql_tables)
+
+
+@router.get("/db/mysql/{table}")
+async def db_mysql_rows(table: str, limit: int = 100):
+    import asyncio as _a
+    return await _a.to_thread(dbbrowser.mysql_rows, table, limit)

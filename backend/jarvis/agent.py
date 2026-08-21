@@ -6,7 +6,8 @@ import anthropic
 
 from jarvis.store import db, get_config, log_action, now_iso
 from jarvis.prompts import SYSTEM_PROMPT
-from jarvis.tools import anthropic_schemas, get_tool
+from jarvis.tools import anthropic_schemas, openai_schemas, get_tool
+from jarvis import ollama_service
 
 MAX_ITERS = 8
 HISTORY_TURNS = 20
@@ -68,17 +69,72 @@ async def _execute_tool(name: str, args: dict, enabled: set[str], user_message: 
 
 async def run_agent(session_id: str, user_message: str) -> dict:
     config = await get_config()
+    provider = config.get("ai_provider", "claude")
+    enabled = _enabled_categories(config)
+    history = await _load_history(session_id)
+    if provider == "ollama":
+        return await _run_ollama(session_id, user_message, config, enabled, history)
+    return await _run_claude(session_id, user_message, config, enabled, history)
+
+
+async def _run_ollama(session_id, user_message, config, enabled, history):
+    url = config.get("ollama_url") or "http://localhost:11434"
+    model = config.get("ollama_model") or "llama3.1"
+    tools = openai_schemas(enabled)
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}] + history + [{"role": "user", "content": user_message}]
+    tools_used, actions, open_urls = [], [], []
+    try:
+        for _ in range(MAX_ITERS):
+            msg = await asyncio.to_thread(ollama_service.chat, url, model, messages, tools)
+            tool_calls = msg.get("tool_calls") or []
+            if not tool_calls:
+                text = (msg.get("content") or "").strip()
+                await _save_message(session_id, "user", user_message)
+                await _save_message(session_id, "assistant", text)
+                return {"ok": True, "reply": text, "tools_used": tools_used,
+                        "actions": actions, "open_urls": open_urls, "provider": "ollama"}
+            messages.append(msg)
+            for tc in tool_calls:
+                fn = tc.get("function", {})
+                name = fn.get("name", "")
+                args = fn.get("arguments") or {}
+                if isinstance(args, str):
+                    try:
+                        args = json.loads(args)
+                    except Exception:
+                        args = {}
+                tools_used.append(name)
+                result = await _execute_tool(name, dict(args), enabled, user_message)
+                if isinstance(result, dict) and result.get("open_in_browser"):
+                    open_urls.append(result["open_in_browser"])
+                actions.append({"tool": name, "input": args, "ok": bool(result.get("ok")) if isinstance(result, dict) else True})
+                messages.append({"role": "tool", "name": name, "content": json.dumps(result, ensure_ascii=False)})
+        return {"ok": True, "reply": "Limite d'étapes atteinte.", "tools_used": tools_used,
+                "actions": actions, "open_urls": open_urls, "provider": "ollama"}
+    except requests_exc() as e:
+        return {"ok": False, "provider": "ollama",
+                "reply": f"Ollama inaccessible sur {url}. Lance Ollama en local (ollama serve) et vérifie le modèle « {model} ». Détail: {e}",
+                "tools_used": tools_used}
+    except Exception as e:
+        await log_action(user_command=user_message, tool="agent-ollama", error=str(e), level="error")
+        return {"ok": False, "reply": f"Erreur Ollama: {e}", "tools_used": tools_used, "provider": "ollama"}
+
+
+def requests_exc():
+    import requests
+    return (requests.exceptions.ConnectionError, requests.exceptions.Timeout)
+
+
+async def _run_claude(session_id, user_message, config, enabled, history):
     api_key = os.environ.get("ANTHROPIC_API_KEY") or config.get("anthropic_api_key", "")
     if not api_key:
         return {"ok": False, "reply": "Ma clé API Claude n'est pas configurée. Ajoute-la dans les Paramètres.",
                 "tools_used": [], "needs_key": True}
 
     model = config.get("anthropic_model") or "claude-sonnet-4-5-20250929"
-    enabled = _enabled_categories(config)
     tools = anthropic_schemas(enabled)
     client = anthropic.AsyncAnthropic(api_key=api_key)
 
-    history = await _load_history(session_id)
     messages = history + [{"role": "user", "content": user_message}]
 
     tools_used: list[str] = []

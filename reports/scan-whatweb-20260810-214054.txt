@@ -1,0 +1,6 @@
+Cible: pwdevelopment.ch
+Profil: whatweb
+Commande: whatweb pwdevelopment.ch
+
+[1m[34mhttp://pwdevelopment.ch[0m [301 Moved Permanently] [1mApache[0m, [1mCountry[0m[[0m[22mSWITZERLAND[0m][[1m[31mCH[0m], [1mHTTPServer[0m[[1m[36mApache[0m], [1mIP[0m[[0m[22m217.26.61.162[0m], [1mRedirectLocation[0m[[0m[22mhttps://pwdevelopment.ch/[0m], [1mTitle[0m[[1m[33m301 Moved Permanently[0m]
+[1m[34mhttps://pwdevelopment.ch/[0m [200 OK] [1mApache[0m, [1mCountry[0m[[0m[22mSWITZERLAND[0m][[1m[31mCH[0m], [1mEmail[0m[[0m[22mvous@exemple.com[0m], [1mHTML5[0m, [1mHTTPServer[0m[[1m[36mApache[0m], [1mIP[0m[[0m[22m217.26.61.162[0m], [1mScript[0m, [1mTitle[0m[[1m[33mroot@portfolio : Bruno da rocha teles[0m]

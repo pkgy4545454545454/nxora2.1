@@ -19,8 +19,12 @@ db = _client[os.environ["DB_NAME"]]
 
 DEFAULT_CONFIG = {
     "_id": "main",
+    "ai_provider": "claude",
     "anthropic_api_key": "",
     "anthropic_model": "claude-sonnet-4-5-20250929",
+    "ollama_url": "http://localhost:11434",
+    "ollama_model": "llama3.1",
+    "ollama_vision_model": "qwen2.5vl:7b",
     "wake_word": "jarvis",
     "voice": {"name": "", "rate": 1.0, "pitch": 1.0, "volume": 1.0, "lang": "fr-FR"},
     "permissions": {

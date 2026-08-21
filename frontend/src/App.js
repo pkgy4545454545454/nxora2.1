@@ -3,23 +3,28 @@ import "@/App.css";
 import { api } from "@/lib/api";
 import { useAssistant } from "@/hooks/useAssistant";
 import Avatar3D from "@/components/Avatar3D";
+import FaceCore from "@/components/FaceCore";
 import { DashboardLeft, DashboardRight } from "@/sections/Dashboard";
 import Settings from "@/sections/Settings";
+import DatabaseView from "@/sections/Database";
+import VisionView from "@/sections/Vision";
 import { ApplicationsView, FilesView, NetworkView, SecurityView, SystemView, ProjectsView } from "@/sections/Views";
 import {
   LayoutDashboard, AppWindow, Folder, Globe, Shield, Cpu, Settings as Cog,
-  Power, Mic, Send, Radio, Square, Activity, Layers,
+  Power, Mic, Send, Radio, Square, Activity, Layers, Database, Eye,
 } from "lucide-react";
 
 const NAV = [
   { id: "dashboard", label: "DASHBOARD", icon: LayoutDashboard },
-  { id: "applications", label: "APPLICATIONS", icon: AppWindow },
+  { id: "applications", label: "APPLIS", icon: AppWindow },
   { id: "files", label: "FICHIERS", icon: Folder },
   { id: "network", label: "RÉSEAUX", icon: Globe },
+  { id: "database", label: "BDD", icon: Database },
+  { id: "vision", label: "VISION", icon: Eye },
   { id: "projects", label: "PROJETS", icon: Layers },
   { id: "security", label: "SÉCURITÉ", icon: Shield },
   { id: "system", label: "SYSTÈME", icon: Cpu },
-  { id: "settings", label: "PARAMÈTRES", icon: Cog },
+  { id: "settings", label: "RÉGLAGES", icon: Cog },
 ];
 
 const STATE_LABEL = {
@@ -129,7 +134,7 @@ function CenterStage({ assistant }) {
     <div className="flex flex-col items-center" style={{ height: "100%", minHeight: 0 }}>
       <div style={{ position: "relative", width: "100%", flex: "0 0 46%", minHeight: 300 }}>
         <div className={`wake-halo ${assistant.armed ? "armed" : ""} ${assistant.wakeFlash ? "flash" : ""}`} />
-        <Avatar3D state={assistant.state} />
+        <FaceCore state={assistant.state} />
         <div className="absolute" style={{ bottom: 6, left: 0, right: 0, textAlign: "center" }}>
           <span className="chip font-display" style={{ background: "rgba(6,12,22,0.7)", color: STATE_COLOR[assistant.state], border: `1px solid ${STATE_COLOR[assistant.state]}`, letterSpacing: 2 }}>
             {STATE_LABEL[assistant.state]}
@@ -192,6 +197,8 @@ export default function App() {
                 {tab === "applications" && <ApplicationsView assistant={assistant} />}
                 {tab === "files" && <FilesView assistant={assistant} />}
                 {tab === "network" && <NetworkView assistant={assistant} />}
+                {tab === "database" && <DatabaseView />}
+                {tab === "vision" && <VisionView />}
                 {tab === "projects" && <ProjectsView assistant={assistant} />}
                 {tab === "security" && <SecurityView assistant={assistant} />}
                 {tab === "system" && <SystemView />}

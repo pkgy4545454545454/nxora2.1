@@ -1,0 +1,27 @@
+Cible: https://pwdevelopment.ch/
+Profil: dirb
+Commande: dirb http://https://pwdevelopment.ch/
+
+
+-----------------
+DIRB v2.22    
+By The Dark Raver
+-----------------
+
+START_TIME: Mon Aug 10 22:14:49 2026
+URL_BASE: http://https://pwdevelopment.ch/
+WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
+
+-----------------
+
+*** Generating Wordlist...
+                                                                               
+GENERATED WORDS: 4612
+
+---- Scanning URL: http://https://pwdevelopment.ch/ ----
+*** Calculating NOT_FOUND code...
+                                                                               
+(!) FATAL: Too many errors connecting to host
+    (Possible cause: COULDNT RESOLVE HOST)
+
+Segmentation fault

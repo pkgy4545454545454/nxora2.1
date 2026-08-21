@@ -36,6 +36,22 @@ Assistant vocal personnel type Iron Man : "Je parle → Claude comprend → l'ag
 - Aperçu Intégré : endpoints backend `GET /api/projects` + `GET /api/preview/{project}/{path}` (sert les fichiers du workspace, garde-fou anti-traversal). Panneau `SitePreviewPanel` (iframe) dans le dashboard, auto-détection du projet le plus récent, rafraîchissement auto (clé mtime), lien plein écran. Vérifié E2E : « crée un site restaurant » → site Bella Napoli affiché dans l'iframe.
 - Micro mains-libres : mode continu déclenché par le mot « JARVIS », avec fenêtre de suivi de 15 s (follow-up sans redire le mot), indicateur d'état (EN ATTENTE / MAINS-LIBRES ACTIF). Le prompt n'ouvre plus d'onglet localhost (aperçu intégré).
 
+## Itération 5 (2026-08-21) — Lot A
+- Fournisseur IA commutable **Claude ↔ Ollama** (local, gratuit) : `ai_provider` dans config + boucle tool-use Ollama (`ollama_service.py`, `/api/chat`). Test réel en local uniquement.
+- Section **VISION** : caméra navigateur → `/api/vision` → modèle Ollama `qwen2.5vl:7b` (par défaut) + historique (`vision_history`). Statut Ollama en direct.
+- Outil agent **take_screenshot** (mss) — capture d'écran en local.
+- Section **Base de données** : navigateur MongoDB (Atlas externe, `EXTERNAL_MONGO_URL`) + MySQL (`pymysql`), tables/collections avec scroll. Endpoints `/api/db/mongo/*` et `/api/db/mysql/*`.
+- **Visage central 'iaia'** (image low-poly) avec anneaux orbitaux (`FaceCore.jsx`), remplace l'avatar au centre.
+- Nav étendue : BDD, VISION (+ Projets). Bascule + champs Ollama dans Réglages.
+
+### À corriger côté utilisateur
+- **MongoDB Atlas** : identifiants `prankgy` rejetés (`bad auth`). Vérifier user/mot de passe du DB User + Network Access (allowlist IP). Le code fonctionne dès que les creds sont bons.
+- **MySQL Hostpoint** : hôte `...db.hostpoint.internal` interne (injoignable hors réseau Hostpoint) ; `MYSQL_DB` mis par défaut = `gapeputo_pkgy` (à confirmer).
+
+### Backlog — Lot B (prochain)
+- Navigation par **gestes de la main** (MediaPipe Hands) : curseur, pincer=clic, scroll, drag & drop des panneaux, via la caméra.
+- Menu circulaire rotatif (disposition radiale complète comme l'image de référence).
+
 ## Limites connues
 - Réponses Claude bloquées : le compte Anthropic du user a un **solde de crédits insuffisant** (clé valide). Ajouter des crédits sur console.anthropic.com.
 - WhatsApp : données de démonstration (MOCKED) — pas d'API officielle de lecture des messages perso.

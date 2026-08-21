@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Panel } from "@/components/Hud";
 import { api } from "@/lib/api";
 import { useVoices, speak } from "@/lib/speech";
-import { KeyRound, Mic2, ShieldCheck, Volume2, Save } from "lucide-react";
+import { KeyRound, Mic2, ShieldCheck, Volume2, Save, Cpu } from "lucide-react";
 
 const MODELS = [
   "claude-sonnet-4-5-20250929",
@@ -30,7 +30,11 @@ export default function Settings({ onSaved }) {
 
   const save = async () => {
     const patch = {
+      ai_provider: cfg.ai_provider,
       anthropic_model: cfg.anthropic_model,
+      ollama_url: cfg.ollama_url,
+      ollama_model: cfg.ollama_model,
+      ollama_vision_model: cfg.ollama_vision_model,
       wake_word: cfg.wake_word,
       voice: cfg.voice,
       permissions: cfg.permissions,
@@ -49,6 +53,26 @@ export default function Settings({ onSaved }) {
 
   return (
     <div className="flex flex-col gap-4" style={{ maxWidth: 720, margin: "0 auto", overflowY: "auto", height: "100%", paddingRight: 6 }}>
+      <Panel title={<><Cpu size={13} /> Fournisseur d'IA</>} testid="settings-provider">
+        <div className="flex gap-2">
+          <button className="btn" style={{ flex: 1, opacity: cfg.ai_provider !== "ollama" ? 1 : 0.5 }}
+            onClick={() => upd({ ai_provider: "claude" })} data-testid="provider-claude">Claude (cloud, payant)</button>
+          <button className="btn" style={{ flex: 1, opacity: cfg.ai_provider === "ollama" ? 1 : 0.5 }}
+            onClick={() => upd({ ai_provider: "ollama" })} data-testid="provider-ollama">Ollama (local, gratuit)</button>
+        </div>
+        {cfg.ai_provider === "ollama" && (
+          <div className="mt-3 flex flex-col gap-2">
+            <label className="text-xs" style={{ color: "var(--text-dim)" }}>URL Ollama</label>
+            <input className="field" value={cfg.ollama_url || ""} onChange={(e) => upd({ ollama_url: e.target.value })} data-testid="ollama-url" placeholder="http://localhost:11434" />
+            <label className="text-xs" style={{ color: "var(--text-dim)" }}>Modèle texte (avec outils)</label>
+            <input className="field" value={cfg.ollama_model || ""} onChange={(e) => upd({ ollama_model: e.target.value })} data-testid="ollama-model" placeholder="llama3.1" />
+            <label className="text-xs" style={{ color: "var(--text-dim)" }}>Modèle vision</label>
+            <input className="field" value={cfg.ollama_vision_model || ""} onChange={(e) => upd({ ollama_vision_model: e.target.value })} data-testid="ollama-vision-model" placeholder="qwen2.5vl:7b" />
+            <div style={{ fontSize: 11, color: "var(--amber)" }}>Nécessite Ollama en local : <code>ollama serve</code>, puis <code>ollama pull llama3.1</code> et <code>ollama pull qwen2.5vl:7b</code>.</div>
+          </div>
+        )}
+      </Panel>
+
       <Panel title={<><KeyRound size={13} /> Intelligence Artificielle (Claude)</>} testid="settings-ai">
         <label className="text-xs" style={{ color: "var(--text-dim)" }}>Clé API Anthropic {cfg.anthropic_api_key_set && <span style={{ color: "var(--green)" }}>• configurée</span>}</label>
         <input className="field mt-1 font-mono" type="password" placeholder="sk-ant-..." value={apiKey}

@@ -1,0 +1,29 @@
+Cible: pwdevelopment.ch
+Profil: dirb
+Commande: dirb http://pwdevelopment.ch
+
+
+-----------------
+DIRB v2.22    
+By The Dark Raver
+-----------------
+
+START_TIME: Mon Aug 10 21:40:54 2026
+URL_BASE: http://pwdevelopment.ch/
+WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
+
+-----------------
+
+*** Generating Wordlist...
+                                                                               
+GENERATED WORDS: 4612
+
+---- Scanning URL: http://pwdevelopment.ch/ ----
+*** Calculating NOT_FOUND code...
+(!) WARNING: NOT_FOUND[] not stable, unable to determine correct URLs {30X}.
+    (Try using FineTunning: '-f')
+                                                                               
+                                                                               
+-----------------
+END_TIME: Mon Aug 10 21:40:55 2026
+DOWNLOADED: 0 - FOUND: 0
